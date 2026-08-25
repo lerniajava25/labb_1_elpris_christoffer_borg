@@ -1,3 +1,7 @@
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 void main() {
     String n;
     int option = 0;
@@ -45,5 +49,23 @@ void main() {
 }
 
 void api () {
-    IO.println("Det funkar!");
+
+    HttpResponse<String> response;
+    try (HttpClient client = HttpClient.newHttpClient()) {
+        URI uri = URI.create("https://www.elprisetjustnu.se/api/v1/prices/2026/08-25_SE3.json");
+        HttpRequest.Builder builder = HttpRequest.newBuilder();
+        builder.uri(uri);
+        HttpRequest request = builder.build();
+        response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException e) {
+            IO.println("Anropet misslyckades.");
+        } catch (InterruptedException e) {
+            IO.println("Anropet avbröts.");
+        }
+    }
+    if (response != null) {
+        IO.println(response.statusCode() + response.body());
+    }
 }
