@@ -25,7 +25,7 @@ void main() {
         }
         switch (option) {
             case 1:
-                IO.println("Du valde alternativ 1.");
+                api();
                 break;
             case 2:
                 IO.println("Du valde alternativ 2.");
@@ -42,4 +42,8 @@ void main() {
         }
     } while (option < 1 || option > 4);
 
+}
+
+void api () {
+    IO.println("Det funkar!");
 }
