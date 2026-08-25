@@ -111,7 +111,7 @@ String selectArea (Scanner input) {
         try {
             option = Integer.parseInt(n);
         } catch (NumberFormatException e) {
-            IO.print("Du måste ange ett nummer mellan 1-4 eller e för att avsluta: \n");
+            IO.print("Du måste ange ett nummer mellan 1-4 eller e för att gå tillbaka: \n");
             continue;
         }
         switch (option) {
