@@ -4,7 +4,10 @@ import java.net.http.HttpResponse;
 
 void main() {
     String n;
-    int option = 0;
+    int option;
+    String area = null;
+    String newArea;
+    //minMaxAverage = null;
     Scanner input = new Scanner(System.in);
     do {
         IO.println("Elpriser - Analysverktyg");
@@ -29,10 +32,19 @@ void main() {
         }
         switch (option) {
             case 1:
-                api();
+                newArea = selectArea(input);
+                if (newArea != null) {
+                    area = newArea;
+                    api(area);
+                }
                 break;
             case 2:
-                IO.println("Du valde alternativ 2.");
+                if (area != null) {
+                //minMaxAverage = calculateMinMaxAverage();
+                }
+                else {
+                    IO.println("Du måste välja ett elområde först.");
+                }
                 break;
             case 3:
                 IO.println("Du valde alternativ 3.");
@@ -44,15 +56,22 @@ void main() {
                 IO.print("Du måste ange ett nummer mellan 1-4 eller e för att avsluta: \n");
 
         }
-    } while (option < 1 || option > 4);
+    } while (true);
 
 }
 
-void api () {
+void calculateMinMaxAverage () {
+
+}
+
+void api (String area) {
+    LocalDate date = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu/MM-dd");
+    String formattedDate = date.format(formatter);
 
     HttpResponse<String> response;
     try (HttpClient client = HttpClient.newHttpClient()) {
-        URI uri = URI.create("https://www.elprisetjustnu.se/api/v1/prices/2026/08-25_SE3.json");
+        URI uri = URI.create("https://www.elprisetjustnu.se/api/v1/prices/" + formattedDate + "_" + area + ".json");
         HttpRequest.Builder builder = HttpRequest.newBuilder();
         builder.uri(uri);
         HttpRequest request = builder.build();
@@ -62,10 +81,51 @@ void api () {
         } catch (IOException e) {
             IO.println("Anropet misslyckades.");
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             IO.println("Anropet avbröts.");
         }
     }
     if (response != null) {
         IO.println(response.statusCode() + response.body());
     }
+}
+
+String selectArea (Scanner input) {
+    String n;
+    int option;
+    do {
+        IO.println("Välj elområde");
+        IO.println("=============");
+        IO.println("1. SE1 - Luleå / Norra Sverige");
+        IO.println("2. SE2 - Sundsvall / Norra Mellansverige");
+        IO.println("3. SE3 - Stockholm / Södra Mellansverige");
+        IO.println("4. SE4 - Malmö / Södra Sverige");
+        IO.println("e. Tillbaka");
+        IO.println("=============");
+        IO.print("Välj ett alternativ ");
+
+        n = input.nextLine();
+        if (n.equals("e") || n.equals("E")) {
+            return null;
+        }
+        try {
+            option = Integer.parseInt(n);
+        } catch (NumberFormatException e) {
+            IO.print("Du måste ange ett nummer mellan 1-4 eller e för att gå tillbaka: \n");
+            continue;
+        }
+        switch (option) {
+            case 1:
+                return "SE1";
+            case 2:
+                return "SE2";
+            case 3:
+                return "SE3";
+            case 4:
+                return "SE4";
+            default:
+                IO.print("Du måste ange ett nummer mellan 1-4 eller e för att avsluta: \n");
+
+        }
+    } while (true);
 }
