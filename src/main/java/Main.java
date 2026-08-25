@@ -62,6 +62,7 @@ void api () {
         } catch (IOException e) {
             IO.println("Anropet misslyckades.");
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             IO.println("Anropet avbröts.");
         }
     }
