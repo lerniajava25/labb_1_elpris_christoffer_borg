@@ -6,6 +6,7 @@ void main() {
     String n;
     int option;
     String area = null;
+    String newArea;
     //minMaxAverage = null;
     Scanner input = new Scanner(System.in);
     do {
@@ -31,8 +32,9 @@ void main() {
         }
         switch (option) {
             case 1:
-                area = selectArea();
-                if (area != null) {
+                newArea = selectArea();
+                if (newArea != null) {
+                    area = newArea;
                     api(area);
                 }
                 break;
