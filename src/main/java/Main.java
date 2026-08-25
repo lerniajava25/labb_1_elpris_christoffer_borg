@@ -32,7 +32,7 @@ void main() {
         }
         switch (option) {
             case 1:
-                newArea = selectArea();
+                newArea = selectArea(input);
                 if (newArea != null) {
                     area = newArea;
                     api(area);
@@ -90,10 +90,9 @@ void api (String area) {
     }
 }
 
-String selectArea () {
+String selectArea (Scanner input) {
     String n;
     int option;
-    Scanner input = new Scanner(System.in);
     do {
         IO.println("Välj elområde");
         IO.println("=============");
