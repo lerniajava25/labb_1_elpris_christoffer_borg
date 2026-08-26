@@ -101,6 +101,7 @@ void api (String area) {
     } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
     }
+    //Test print
     IO.println(prices[0].price);
 }
 
