@@ -89,20 +89,25 @@ void api (String area) {
         }
     }
 
-    if (response == null) {
+    if (response != null && response.statusCode() >=200 && response.statusCode() <= 299) {
+        Price[] prices;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            prices = mapper.readValue(response.body(), Price[].class);
+        } catch (JsonProcessingException e) {
+            IO.println("Fel vid parsning av data");
+            return;
+        }
+        if (prices.length == 0) {
+            IO.println("Ingen prisdata hittades.");
+            return;
+        }
+        //Test print
+        IO.println(prices[0].price);
+    }
+    else {
         IO.println("Fel vid hämtning av data.");
-        return;
     }
-
-    Price[] prices;
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-        prices = mapper.readValue(response.body(), Price[].class);
-    } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-    }
-    //Test print
-    IO.println(prices[0].price);
 }
 
 String selectArea (Scanner input) {
