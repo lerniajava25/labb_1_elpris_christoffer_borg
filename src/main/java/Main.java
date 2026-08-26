@@ -10,6 +10,7 @@ void main() {
     int option;
     String area = null;
     String newArea;
+    Price[] prices = null;
     //minMaxAverage = null;
     Scanner input = new Scanner(System.in);
     do {
@@ -38,15 +39,20 @@ void main() {
                 newArea = selectArea(input);
                 if (newArea != null) {
                     area = newArea;
-                    api(area);
+                    prices = api(area);
                 }
                 break;
             case 2:
-                if (area != null) {
-                //minMaxAverage = calculateMinMaxAverage();
+                if (area == null) {
+                    IO.println("Du måste välja ett elområde först.");
+                    break;
+                }
+                else if (prices == null) {
+                    IO.println("Fel vid hämtning av prisdata.");
+                    break;
                 }
                 else {
-                    IO.println("Du måste välja ett elområde först.");
+                    calculateMinMaxAverage(prices);
                 }
                 break;
             case 3:
@@ -63,11 +69,28 @@ void main() {
 
 }
 
-void calculateMinMaxAverage () {
-
+void calculateMinMaxAverage (Price[] prices) {
+    double min = prices[0].price;
+    double max = prices[0].price;
+    double sum = 0;
+    for (Price price : prices) {
+        sum += price.price;
+        if (price.price < min) {
+            min = price.price;
+        }
+        if (price.price > max) {
+            max = price.price;
+        }
+    }
+    double average = (sum / prices.length) * 100;
+    max = max * 100;
+    min = min * 100;
+    System.out.printf("\nHögsta priset för dagen är: %.2f öre/kWh\n", max);
+    System.out.printf("Lägsta priset för dagen är: %.2f öre/kWh\n", min);
+    System.out.printf("Medelpriset för dagen är: %.2f öre/kWh\n\n", average);
 }
 
-void api (String area) {
+Price[] api (String area) {
     LocalDate date = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu/MM-dd");
     String formattedDate = date.format(formatter);
@@ -96,17 +119,17 @@ void api (String area) {
             prices = mapper.readValue(response.body(), Price[].class);
         } catch (JsonProcessingException e) {
             IO.println("Fel vid parsning av data");
-            return;
+            return null;
         }
         if (prices == null || prices.length == 0) {
             IO.println("Ingen prisdata hittades.");
-            return;
+            return null;
         }
-        //Test print
-        IO.println(prices[0].price);
+        return prices;
     }
     else {
         IO.println("Fel vid hämtning av data.");
+        return null;
     }
 }
 
