@@ -98,7 +98,7 @@ void api (String area) {
             IO.println("Fel vid parsning av data");
             return;
         }
-        if (prices.length == 0) {
+        if (prices == null || prices.length == 0) {
             IO.println("Ingen prisdata hittades.");
             return;
         }
