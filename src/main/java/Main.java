@@ -34,7 +34,17 @@ void main() {
             IO.print("Du måste ange ett nummer mellan 1-4 eller e för att avsluta: \n");
             continue;
         }
+        if (option == 2 || option == 3 || option == 4) {
+            if (area == null) {
+                IO.println("Du måste välja ett elområde först.");
+                continue;
+            } else if (prices == null) {
+                IO.println("Fel vid hämtning av prisdata.");
+                continue;
+            }
+        }
         switch (option) {
+
             case 1:
                 newArea = selectArea(input);
                 if (newArea != null) {
@@ -43,20 +53,10 @@ void main() {
                 }
                 break;
             case 2:
-                if (area == null) {
-                    IO.println("Du måste välja ett elområde först.");
-                    break;
-                }
-                else if (prices == null) {
-                    IO.println("Fel vid hämtning av prisdata.");
-                    break;
-                }
-                else {
-                    calculateMinMaxAverage(prices);
-                }
+                calculateMinMaxAverage(prices);
                 break;
             case 3:
-                IO.println("Du valde alternativ 3.");
+                calculateHourlyPrices(prices);
                 break;
             case 4:
                 IO.println("Du valde alternativ 4.");
@@ -69,7 +69,7 @@ void main() {
 
 }
 
-void calculateMinMaxAverage (Price[] prices) {
+void calculateMinMaxAverage(Price[] prices) {
     double min = prices[0].price;
     double max = prices[0].price;
     double sum = 0;
@@ -90,7 +90,34 @@ void calculateMinMaxAverage (Price[] prices) {
     System.out.printf("Medelpriset för dagen är: %.2f öre/kWh\n\n", average);
 }
 
-Price[] api (String area) {
+void calculateHourlyPrices(Price[] prices) {
+    HourlyPrice[] hourlyPrices = new HourlyPrice[24];
+    for (int i = 0; i <24; i++) {
+        int start = i * 4;
+        double hourlySum = prices[start].price + prices[start+1].price + prices[start+2].price + prices[start+3].price;
+        double averageHour = hourlySum / 4;
+        hourlyPrices[i] = new HourlyPrice(i, averageHour);
+    }
+    for (int i = 0; i < hourlyPrices.length; i++) {
+        int lowest = i;
+        for (int j = i + 1; j < hourlyPrices.length; j++) {
+            if (hourlyPrices[j].price < hourlyPrices[lowest].price) {
+                lowest = j;
+            }
+        }
+        HourlyPrice temp = hourlyPrices[i];
+        hourlyPrices[i] = hourlyPrices[lowest];
+        hourlyPrices[lowest] = temp;
+    }
+    IO.println("\nDagens timmar sorterade efter billigaste timpris:\n");
+    for (HourlyPrice a : hourlyPrices) {
+        System.out.printf("Klockan %02d-%02d är priset %.2f öre/kWh\n", a.hour, a.hour + 1, a.price * 100);
+    }
+    IO.println("\n");
+
+}
+
+Price[] api(String area) {
     LocalDate date = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu/MM-dd");
     String formattedDate = date.format(formatter);
@@ -112,7 +139,7 @@ Price[] api (String area) {
         }
     }
 
-    if (response != null && response.statusCode() >=200 && response.statusCode() <= 299) {
+    if (response != null && response.statusCode() >= 200 && response.statusCode() <= 299) {
         Price[] prices;
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -126,14 +153,13 @@ Price[] api (String area) {
             return null;
         }
         return prices;
-    }
-    else {
+    } else {
         IO.println("Fel vid hämtning av data.");
         return null;
     }
 }
 
-String selectArea (Scanner input) {
+String selectArea(Scanner input) {
     String n;
     int option;
     do {
