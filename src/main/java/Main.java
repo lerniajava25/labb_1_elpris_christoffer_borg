@@ -11,7 +11,7 @@ void main() {
     String area = null;
     String newArea;
     Price[] prices = null;
-    //minMaxAverage = null;
+    HourlyPrice[] hourlyPrices;
     Scanner input = new Scanner(System.in);
     do {
         IO.println("Elpriser - Analysverktyg");
@@ -56,10 +56,12 @@ void main() {
                 calculateMinMaxAverage(prices);
                 break;
             case 3:
-                calculateHourlyPrices(prices);
+                hourlyPrices = calculateHourlyPrices(prices);
+                sortHourlyPrices(hourlyPrices);
                 break;
             case 4:
-                IO.println("Du valde alternativ 4.");
+                hourlyPrices = calculateHourlyPrices(prices);
+                calculateBestFourHours(hourlyPrices);
                 break;
             default:
                 IO.print("Du måste ange ett nummer mellan 1-4 eller e för att avsluta: \n");
@@ -67,6 +69,20 @@ void main() {
         }
     } while (true);
 
+}
+
+void calculateBestFourHours(HourlyPrice[] hourlyPrices) {
+    double hourlySum;
+    double lowest = 10000;
+    int index = 0;
+    for (int i = 0; i < hourlyPrices.length - 3; i++) {
+        hourlySum = hourlyPrices[i].price + hourlyPrices[i + 1].price + hourlyPrices[i + 2].price + hourlyPrices[i + 3].price;
+        if (hourlySum < lowest) {
+            index = i;
+            lowest = hourlySum;
+        }
+    }
+    System.out.printf("\nDen bästa 4h perioden för att ladda är mellan: %d-%d\n\n", index, index + 4);
 }
 
 void calculateMinMaxAverage(Price[] prices) {
@@ -90,14 +106,18 @@ void calculateMinMaxAverage(Price[] prices) {
     System.out.printf("Medelpriset för dagen är: %.2f öre/kWh\n\n", average);
 }
 
-void calculateHourlyPrices(Price[] prices) {
+HourlyPrice[] calculateHourlyPrices(Price[] prices) {
     HourlyPrice[] hourlyPrices = new HourlyPrice[24];
-    for (int i = 0; i <24; i++) {
+    for (int i = 0; i < 24; i++) {
         int start = i * 4;
-        double hourlySum = prices[start].price + prices[start+1].price + prices[start+2].price + prices[start+3].price;
+        double hourlySum = prices[start].price + prices[start + 1].price + prices[start + 2].price + prices[start + 3].price;
         double averageHour = hourlySum / 4;
         hourlyPrices[i] = new HourlyPrice(i, averageHour);
     }
+    return hourlyPrices;
+}
+
+void sortHourlyPrices(HourlyPrice[] hourlyPrices) {
     for (int i = 0; i < hourlyPrices.length; i++) {
         int lowest = i;
         for (int j = i + 1; j < hourlyPrices.length; j++) {
@@ -114,7 +134,6 @@ void calculateHourlyPrices(Price[] prices) {
         System.out.printf("Klockan %02d-%02d är priset %.2f öre/kWh\n", a.hour, a.hour + 1, a.price * 100);
     }
     IO.println("\n");
-
 }
 
 Price[] api(String area) {
@@ -148,7 +167,7 @@ Price[] api(String area) {
             IO.println("Fel vid parsning av data");
             return null;
         }
-        if (prices == null || prices.length == 0) {
+        if (prices == null || prices.length != 96) {
             IO.println("Ingen prisdata hittades.");
             return null;
         }
