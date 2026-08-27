@@ -167,7 +167,7 @@ Price[] api(String area) {
             IO.println("Fel vid parsning av data");
             return null;
         }
-        if (prices == null || prices.length == 0) {
+        if (prices == null || prices.length != 96) {
             IO.println("Ingen prisdata hittades.");
             return null;
         }
